@@ -37,7 +37,7 @@ def check_data(data_df):
     print(data_df.describe(include='object').T)
 
     print(
-        '\033[1m' + '\nВывод уникальных значений по каждому категориаьному признаку:' + '\033[0m')
+        '\033[1m' + '\nВывод уникальных значений по каждому категориальному признаку:' + '\033[0m')
     df_object = data_df.select_dtypes(include='object').columns
 
     for i in df_object:
