@@ -63,9 +63,9 @@ def hypotheses(dat):
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
         printing("Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:",
-                 ttest_ind(grp1, grp2, equal_var=False)[1])
+                 pearsonr(grp1, grp2)[1])
     else:
-        printing("Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:", mannwhitneyu(grp1, grp2)[1])
+        printing("Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:", spearmanr(grp1, grp2)[1])
 
     # Проверка гипотезы о влиянии страны на оценку комфорта
     grp1 = dat[dat.страна == 'США']['оценка_комфорта']
