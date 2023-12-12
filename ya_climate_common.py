@@ -5,6 +5,14 @@ import seaborn as sns
 from scipy.stats import anderson, jarque_bera, shapiro
 
 
+def get_ohe(train, categ, ohe):
+    temp_df = pd.DataFrame(data=ohe.transform(train[categ]),
+                           columns=ohe.get_feature_names_out())
+    data = pd.concat([train.reset_index(drop=True), temp_df], axis=1)
+    data = data.drop(columns=categ, axis=1)
+    return data
+
+
 def check_data(data_df):
     pd.set_option('display.max_columns', None)
 
