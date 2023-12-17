@@ -1,16 +1,12 @@
 import pandas as pd
-from scipy.stats import mannwhitneyu, shapiro, ttest_ind, kruskal, f_oneway, \
-    pearsonr, spearmanr
-
-import ya_climate_common
-from ya_climate_preprocessing import stage1
+from scipy.stats import mannwhitneyu, shapiro, ttest_ind, kruskal, f_oneway, pearsonr, spearmanr
 
 
-def printing(string, p):
+def printing(string, p, m):
     if p < 0.05:
-        print(string, "влияние фактора на отклик обнаружено")
+        print(f"{string} влияние фактора на отклик обнаружено.\t\tp value: {p}\t\tМетод:, {m}")
     else:
-        print(string, "влияние фактора на отклик не обнаружено", )
+        print(f"{string} влияние фактора на отклик не обнаружено/данных недостаточно.\t\tp value: {p}\t\tМетод:, {m}")
 
 
 def hypotheses(dat):
@@ -23,14 +19,13 @@ def hypotheses(dat):
     grp1 = dat[dat.способ_охлаждения == 'Кондиционирование']['оценка_комфорта']
     grp2 = dat[dat.способ_охлаждения == 'Смешанный']['оценка_комфорта']
     grp3 = dat[dat.способ_охлаждения == 'Вентиляция']['оценка_комфорта']
-    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and \
-             shapiro(grp3)[1] >= 0.05
+    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and shapiro(grp3)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии способа охлаждения на оценку комфорта:",
-                 f_oneway(grp1, grp2, grp3)[1])
+                 f_oneway(grp1, grp2, grp3)[1], "ANOVA")
     else:
         printing("Гипотеза о влиянии способа охлаждения на оценку комфорта:",
-                 kruskal(grp1, grp2, grp3)[1])
+                 kruskal(grp1, grp2, grp3)[1], "Краскела-Уоллеса")
 
     # Проверка гипотезы о влиянии пола на оценку комфорта
     grp1 = dat[dat.пол == 'Мужской']['оценка_комфорта']
@@ -38,49 +33,45 @@ def hypotheses(dat):
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии пола на оценку комфорта:",
-                 ttest_ind(grp1, grp2, equal_var=False)[1])
+                 ttest_ind(grp1, grp2, equal_var=False)[1], "Стьюдента")
     else:
         printing("Гипотеза о влиянии пола на оценку комфорта:",
-                 mannwhitneyu(grp1, grp2)[1])
+                 mannwhitneyu(grp1, grp2)[1], "Манна-Уитни")
 
     # Проверка гипотезы о влиянии возрастной группы на оценку комфорта
     grp1 = dat[dat.возрастная_группа == 'молодой возраст']['оценка_комфорта']
     grp2 = dat[dat.возрастная_группа == 'средний возраст']['оценка_комфорта']
     grp3 = dat[dat.возрастная_группа == 'пожилой возраст']['оценка_комфорта']
-    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and \
-             shapiro(grp3)[1] >= 0.05
+    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and shapiro(grp3)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии возрастной группы на оценку комфорта:",
-                 f_oneway(grp1, grp2, grp3)[1])
+                 f_oneway(grp1, grp2, grp3)[1], "ANOVA")
     else:
         printing("Гипотеза о влиянии возрастной группы на оценку комфорта:",
-                 kruskal(grp1, grp2, grp3)[1])
+                 kruskal(grp1, grp2, grp3)[1], "Краскела-Уоллеса")
 
     # Проверка гипотезы о взаимосвязи количества рекламаций и оценки комфорта
     grp1 = dat['оценка_комфорта']
     grp2 = dat['количество_рекламаций']
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
-        printing(
-            "Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:",
-            pearsonr(grp1, grp2)[1])
+        printing("Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:",
+                 ttest_ind(grp1, grp2, equal_var=False)[1], "Стьюдента")
     else:
-        printing(
-            "Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:",
-            spearmanr(grp1, grp2)[1])
+        printing("Гипотеза о взаимосвязи количества рекламаций и оценки комфорта:",
+                 mannwhitneyu(grp1, grp2)[1], "Манна-Уитни")
 
     # Проверка гипотезы о влиянии страны на оценку комфорта
     grp1 = dat[dat.страна == 'США']['оценка_комфорта']
     grp2 = dat[dat.страна == 'Австралия']['оценка_комфорта']
     grp3 = dat[dat.страна == 'Индия']['оценка_комфорта']
-    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and \
-             shapiro(grp3)[1] >= 0.05
+    normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05 and shapiro(grp3)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии страны на оценку комфорта:",
-                 f_oneway(grp1, grp2, grp3)[1])
+                 f_oneway(grp1, grp2, grp3)[1], "ANOVA")
     else:
         printing("Гипотеза о влиянии страны на оценку комфорта:",
-                 kruskal(grp1, grp2, grp3)[1])
+                 kruskal(grp1, grp2, grp3)[1], "Краскела-Уоллеса")
 
     # Проверка гипотезы о влиянии влажности на оценку комфорта
     grp1 = dat['rh']
@@ -88,10 +79,10 @@ def hypotheses(dat):
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии влажности на оценку комфорта:",
-                 pearsonr(grp1, grp2)[1])
+                 pearsonr(grp1, grp2)[1], "Пирсона")
     else:
         printing("Гипотеза о влиянии влажности на оценку комфорта:",
-                 spearmanr(grp1, grp2)[1])
+                 spearmanr(grp1, grp2)[1], "Спирмена")
 
     # Проверка гипотезы о влиянии скорости воздуха на оценку комфорта
     grp1 = dat['скорость_воздуха']
@@ -99,23 +90,21 @@ def hypotheses(dat):
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии скорости воздуха на оценку комфорта:",
-                 pearsonr(grp1, grp2)[1])
+                 pearsonr(grp1, grp2)[1], "Пирсона")
     else:
         printing("Гипотеза о влиянии скорости воздуха на оценку комфорта:",
-                 spearmanr(grp1, grp2)[1])
+                 spearmanr(grp1, grp2)[1], "Спирмена")
 
     # Проверка гипотезы о влиянии температуры воздуха в помещении на оценку комфорта
     grp1 = dat['температура_воздуха_в_помещении']
     grp2 = dat['оценка_комфорта']
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
-        printing(
-            "Гипотеза о влиянии температуры воздуха в помещении на оценку комфорта:",
-            pearsonr(grp1, grp2)[1])
+        printing("Гипотеза о влиянии температуры воздуха в помещении на оценку комфорта:",
+                 pearsonr(grp1, grp2)[1], "Пирсона")
     else:
-        printing(
-            "Гипотеза о влиянии температуры воздуха в помещении на оценку комфорта:",
-            spearmanr(grp1, grp2)[1])
+        printing("Гипотеза о влиянии температуры воздуха в помещении на оценку комфорта:",
+                 spearmanr(grp1, grp2)[1], "Спирмена")
 
     # Проверка гипотезы о влиянии утепления на оценку комфорта
     grp1 = dat['утепление']
@@ -123,7 +112,7 @@ def hypotheses(dat):
     normal = shapiro(grp1)[1] >= 0.05 and shapiro(grp2)[1] >= 0.05
     if normal:
         printing("Гипотеза о влиянии тутепления на оценку комфорта:",
-                 pearsonr(grp1, grp2)[1])
+                 pearsonr(grp1, grp2)[1], "Пирсона")
     else:
         printing("Гипотеза о влиянии утепления на улице на оценку комфорта:",
-                 spearmanr(grp1, grp2)[1])
+                 spearmanr(grp1, grp2)[1], "Спирмена")
